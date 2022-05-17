@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import FastAPI, HTTPException
-from models import Restaurant
+from models import RestOut, Restaurant
 
 app = FastAPI(title="RESTaurants")
 
@@ -55,3 +55,7 @@ async def delete_restaurant(restaurant_id: int):
         status_code=404,
         detail=f"restaurant with id: {restaurant_id} doesnt exists."
     )
+
+
+@app.post("/restadress", response_model=RestOut)
+async def adress_restaurant():
