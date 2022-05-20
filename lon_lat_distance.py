@@ -1,25 +1,25 @@
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 
-geolocator = Nominatim(user_agent="app")
 
-# Insere os dois locais para comparação de distância
-local1 = input("Digite o primeiro local: ")
-local2 = input("Digite o segundo local: ")
+def get_cood(address):
+    geolocator = Nominatim(user_agent="app")
+    location = geolocator.geocode(address)
+    return location.latitude, location.longitude
 
-local1 = geolocator.geocode(local1)
-local2 = geolocator.geocode(local2)
 
-# Mostra na tela as latitudes/longitudes dos dois locais
-print(f"Latitude L1: {local1.latitude} / Longitude L1: {local1.longitude}")
-print(f"Latitude L2: {local2.latitude} / Longitude L2: {local2.longitude}")
+def get_distance(address1, address2):
+    geolocator = Nominatim(user_agent="app")
+    address1 = geolocator.geocode(address1)
+    address2 = geolocator.geocode(address2)
 
-Loc1_lat, Loc1_lon = (local1.latitude), (local1.longitude)
-Loc2_lat, Loc2_lon = (local2.latitude), (local2.longitude)
+    adress_loc1 = (address1.latitude, address1.longitude)
+    adress_loc2 = (address2.latitude, address2.longitude)
 
-localizacao1 = (Loc1_lat, Loc1_lon)
-localizacao2 = (Loc2_lat, Loc2_lon)
+    return (geodesic(adress_loc1, adress_loc2))
 
-# Mostra na tela a distância entre os dois locais
-distancia = (geodesic(localizacao1, localizacao2).km)
-print(f"A distâncie entre os locais é de: {distancia}kms.")
+
+distancia = get_distance("Mossoró", "Natal")
+print(f"A distância entre os locais é de {distancia}")
+local = get_cood("Rua José Erasmo de Moura, 470, Alto do Sumaré, Mossoró/RN")
+print(local)
