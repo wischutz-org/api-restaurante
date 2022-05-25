@@ -1,61 +1,25 @@
-from typing import List
-from fastapi import FastAPI, HTTPException
-from models import RestOut, Restaurant
-
-app = FastAPI(title="RESTaurants")
-
-db: List[Restaurant] = [
-    Restaurant(
-        id=0,
-        name="Sabores Secretos",
-        neighborhood="Sumaré",
-        address="R. José Erasmo de Moura, 100 - Alto do Sumaré, Mossoró - RN, 59633-680",
-        cuisine_type="italian"
-    ),
-    Restaurant(
-        id=1,
-        name="Kiko Sushi",
-        neighborhood="Doze Anos",
-        address="Av. Diocesano, 2630 - Doze Anos, Mossoró - RN, 59603-200",
-        cuisine_type="japanese"
-    ),
-    Restaurant(
-        id=2,
-        name="Yong Xiang",
-        neighborhood="Centro",
-        address="Av. Rio Branco, 2121 - Centro, Mossoró - RN, 59600-145",
-        cuisine_type="chinese"
-    )
-]
+from fastapi import FastAPI
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 
 
-@app.get("/")
-async def healthcheck():
-    return {"Status code": "200"}
+app = FastAPI(title="Restaurants")
 
 
-@app.get("/restaurants")
-async def fetch_restaurants():
-    return db
+@app.get("/rest-cood")
+def get_cood(address):
+    geolocator = Nominatim(user_agent="app")
+    location = geolocator.geocode(address)
+    return location.latitude, location.longitude
 
 
-@app.post("/restaurants")
-async def register_restaurant(restaurant: Restaurant):
-    db.append(restaurant)
-    return {"id": restaurant.id}
+@app.get("/rest-distance")
+def get_distance(address1, address2):
+    geolocator = Nominatim(user_agent="app")
+    address1 = geolocator.geocode(address1)
+    address2 = geolocator.geocode(address2)
 
+    adress_loc1 = (address1.latitude, address1.longitude)
+    adress_loc2 = (address2.latitude, address2.longitude)
 
-@app.delete("/restaurants/{restaurant_id}")
-async def delete_restaurant(restaurant_id: int):
-    for restaurant in db:
-        if restaurant.id == restaurant_id:
-            db.remove(restaurant)
-            return {"{restaurant_id}": "Deletado com sucesso!"}
-    raise HTTPException(
-        status_code=404,
-        detail=f"restaurant with id: {restaurant_id} doesnt exists."
-    )
-
-
-@app.post("/restadress", response_model=RestOut)
-async def adress_restaurant():
+    return (geodesic(adress_loc1, adress_loc2)).km
